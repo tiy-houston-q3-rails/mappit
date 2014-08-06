@@ -1,0 +1,23 @@
+
+<%= simple_form_for @place do |f| %>
+  <%= f.input :address %>
+  <%= f.submit class: "btn btn-primary btn-large"%>
+<% end %>
+
+<% @places.each do |place| %>
+<%= place.address %>
+<% end %>
+
+<br/>
+<div id="map"></div>
+
+
+<script>
+  $(window).ready(function(){
+
+    <% @places.each do |place| %>
+    L.marker([<%= place.latitude %>, <%= place.longitude %>]).addTo(window.map)
+  			.bindPopup("<b><%= place.address %></b>");
+    <% end %>
+  });
+</script>
