@@ -1,12 +1,14 @@
 
-<%= simple_form_for @place do |f| %>
+<%= simple_form_for @place, remote: true do |f| %>
   <%= f.input :address %>
   <%= f.submit class: "btn btn-primary btn-large"%>
 <% end %>
 
+<p id="place-list">
 <% @places.each do |place| %>
 <%= place.address %>
 <% end %>
+</p>
 
 <br/>
 <div id="map"></div>
@@ -15,9 +17,21 @@
 <script>
   $(window).ready(function(){
 
-    <% @places.each do |place| %>
+    <% @places.reject{|p| p.latitude.nil?}.each do |place| %>
     L.marker([<%= place.latitude %>, <%= place.longitude %>]).addTo(window.map)
   			.bindPopup("<b><%= place.address %></b>");
     <% end %>
+  });
+</script>
+
+<script type="text/javascript">
+
+  var pusher = new Pusher('<%= ENV["PUSHER_ID"]%>');
+  var channel = pusher.subscribe('mappit');
+  channel.bind('newPlace', function(data) {
+
+    L.marker([data.latitude, data.longitude]).addTo(window.map)
+         .bindPopup(data.address);
+    $("#place-list").append(data.address + " ");
   });
 </script>
